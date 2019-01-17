@@ -63,7 +63,7 @@
   {% for collection in collections %}
     {% if collection.handle contains maincondition %}  
   	{% unless collection.products_count == 0 or collection.handle contains current%}
-        <div class="col-xs-6 col-sm-4 col-md-{%if settings.show_per_row_5_collection%}2_5{%else%}3{%endif%} sameHeight">
+        <div class="col-xs-6 col-sm-4">
            {% assign featured = collection.handle %}
           {% include 'collection-grid-item' %}
         </div>
