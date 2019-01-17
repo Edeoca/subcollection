@@ -1,0 +1,114 @@
+<div class="container">
+  <div class="row">
+    <div class="span12">
+      <div class="clearfix xs-text-center">
+        <h1 class="collection-title">{{ collection.title }}</h1>
+      </div>
+    </div>
+  </div>
+<div class="collection-description">
+    {% if collection.description != "" %}
+    {{ collection.description }}
+    {% endif %}
+</div>	
+</div>
+{%assign count= 0%}
+{% assign default_mode = true %}  
+{% assign maincondition = collection.image.alt%}
+{% assign current = collection.handle%}
+{% if section.blocks.size > 0 %}
+{% for block in section.blocks %}
+{% if block.type == 'subcollection' %}
+{% assign col = collections[block.settings.custom_collection].handle%}
+{% if col == current %}
+{% assign default_mode = false %}
+{% assign to_add = block.settings.handles_avalaible | split: ','%}
+{% assign to_remove = block.settings.handles_remove | split: ',' %}
+
+{% capture arraytest %}{% for collection in collections %}{% if collection.handle contains maincondition %}{% unless collection.products_count == 0 or collection.handle contains current %}{{collection.handle}}|{%endunless%}{% endif %}{%endfor%}{% endcapture %}
+{% assign builder = arraytest%}
+{% for custom in to_remove %}
+{%assign title = custom | append: "|"%}
+{%assign builder = builder | remove: title%}
+{%endfor%}
+
+{% for custom in to_add %}
+{%assign title = custom | append: "|"%}
+{%assign builder = builder | append: title%}
+{%endfor%}
+
+
+{% assign list_handles = builder | split: "|" %}
+
+{% assign last_list = list_handles | uniq %}
+
+
+<div class="grid-uniform">
+{%for list in last_list%}
+  <div class="col-xs-6 col-sm-4">
+          {% assign featured = list %}
+          {% include 'collection-grid-item' %}
+        </div>
+{%endfor%}
+</div>
+
+{%endif%}
+{%endif%}
+{%endfor%}
+{%endif%}
+
+{%if default_mode%}
+
+<div class="grid-uniform">
+  {% for collection in collections %}
+    {% if collection.handle contains maincondition %}  
+  	{% unless collection.products_count == 0 or collection.handle contains current%}
+        <div class="col-xs-6 col-sm-4 col-md-{%if settings.show_per_row_5_collection%}2_5{%else%}3{%endif%} sameHeight">
+           {% assign featured = collection.handle %}
+          {% include 'collection-grid-item' %}
+        </div>
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+</div>
+
+{%endif%}
+
+
+{% schema %}
+  {
+    "name": "Subcollection Area",
+    "settings": [],
+  "blocks": [
+    {
+      "type": "subcollection",
+      "name": "Custom Subcollection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "custom_collection",
+          "label": "Pick Collection"
+        },
+ 		{
+          "type": "text",
+          "id": "handles_avalaible",
+          "label": "Handles to Add",
+		    "info": "Separate with commas"
+        },
+		{
+          "type": "text",
+          "id": "handles_remove",
+          "label": "Handles to Remove",
+		  "info": "Separate with commas"
+        }
+      ]
+    }
+  ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}
